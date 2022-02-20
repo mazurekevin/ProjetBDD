@@ -3,23 +3,24 @@ import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.Random;
+import java.util.Scanner;
 
 public class GameOfLife extends JFrame {
-    int size = 50;
     boolean[][] cellsMap;
     JButton[][] cells;
 
-    public GameOfLife(){
+    //Setup la taille de la map avec swing
+    public GameOfLife(int taille){
         Random rnd = new Random();
 
-        cellsMap = new boolean[size][size];
-        cells = new JButton[size][size];
+        cellsMap = new boolean[taille][taille];
+        cells = new JButton[taille][taille];
         setSize(500,500);
-        setLayout(new GridLayout(size,size));
-
-        for(int i = 0; i<size;i++){
-            for(int j = 0; j<50;j++){
-                cellsMap[i][j] = rnd.nextInt(100)<50;
+        setLayout(new GridLayout(taille,taille));
+        //Défini aléatoirement les cellules vivantes et morte
+        for(int i = 0; i<taille;i++){
+            for(int j = 0; j<taille;j++){
+                cellsMap[i][j] = rnd.nextInt(100)<taille;
                 JButton temp = new JButton();
                 if(cellsMap[i][j]){
                     temp.setBackground(Color.GREEN);
@@ -35,11 +36,12 @@ public class GameOfLife extends JFrame {
         setDefaultCloseOperation(EXIT_ON_CLOSE);
 
         Timer timer = new Timer(100, new ActionListener() {
+            //Applique le scénario en fonction du nombre de voisin vivant
             @Override
             public void actionPerformed(ActionEvent e){
-                boolean[][] temp = new boolean[size][size];
-                for(int i = 0; i<size; i++){
-                    for (int j = 0;j<50;j++){
+                boolean[][] temp = new boolean[taille][taille];
+                for(int i = 0; i<taille; i++){
+                    for (int j = 0;j<taille;j++){
                         int count = countNeigbours(i,j);
                         if(cellsMap[i][j]){
                             if(count<2)
@@ -58,8 +60,9 @@ public class GameOfLife extends JFrame {
                     }
                 }
                 cellsMap = temp;
-                for(int i = 0; i<size; i++) {
-                    for (int j = 0; j < 50; j++) {
+                //Change la couleur de la cellule
+                for(int i = 0; i<taille; i++) {
+                    for (int j = 0; j < taille; j++) {
                         if(cellsMap[i][j]){
                             cells[i][j].setBackground(new Color(rnd.nextInt(255),rnd.nextInt(255),rnd.nextInt(255)));
                         }else{
@@ -73,6 +76,8 @@ public class GameOfLife extends JFrame {
 
         timer.start();
     }
+
+    //Permet de compter le nombre de voisin vivant autour de la cellule
     int countNeigbours(int x, int y){
         int count = 0;
 
@@ -93,7 +98,28 @@ public class GameOfLife extends JFrame {
         return count;
     }
 
+    //Début du programme et demande la taille de la map
     public static void main(String[] args){
-        new GameOfLife();
+        int taille = 50;
+        boolean checked = false;
+        System.out.println("Sélectionner la taille de votre map entre 15 et 75.");
+        while(!checked){
+            System.out.println("Taille :");
+            Scanner scan = new Scanner(System.in);
+            taille = scan.nextInt();
+            checked = checkTaille(taille);
+        }
+
+        new GameOfLife(taille);
+    }
+    // Vérifie la taille de la map
+    //En-dessous de 15, les cellules meurent tous de surpopulation
+    //Au-dessus de 75, les cellules meurent tous de souspopulation
+    private static boolean checkTaille(int taille) {
+        if (taille>=15 && taille<=75){
+            return true;
+        }
+        System.out.println("Mettre une taille entre 15 et 75.");
+        return false;
     }
 }
